@@ -1,105 +1,121 @@
+let total = 0;
+let operador = '';
+let numero1 = 0;
+let numero2 = 0;
+let cantOperador = 0;
+let cambiador = 0;
+
 const formula = document.querySelector('.formula');
-var total = 0;
-var aux = 0;
-var operador = '';
-var operadorAux = '';
-var cambiador = 1;
-var contador = 0;
-const totalCuenta = document.createElement('p');
-const operandos = document.querySelectorAll('.operador');
 
-const operadores = ['+', '-', '*', '/'];
-
-document.addEventListener('keypress', function(e){
-
-    if(e.code.search('Key') === -1){
-
-        
-        if(e.charCode >= 42 && e.charCode<=57){
-            
-            if(e.charCode >= 48 && e.charCode<=57){
-                if(cambiador === 1){
-                    formula.innerHTML = '';
-                }
-                cambiador = 0;
-                const ingreso = e.key;
-                formula.append(ingreso);
-                totalCuenta.append(ingreso);
-                aux = parseFloat(formula.textContent);
-                
+document.querySelector('.contenedor-calculadora').addEventListener('click', e => {
+    if(e.target.classList.contains('boton')){
+        if(e.target.classList.contains('numero')){
+            if(cambiador < 1){
+                formula.innerHTML = '';
             }
-
-
-            if(e.key === '+' || e.key === '-' || e.key === '*' || e.key === '/'){
-                if(ultimoOperador()){
-                    const numeroAux = totalCuenta.textContent.split(totalCuenta.textContent.charAt(totalCuenta.textContent.length - 1))[0]
-                    totalCuenta.innerHTML = '';
-                    totalCuenta.append(numeroAux);
-                    totalCuenta.append(e.key);
-                }else{
-                    totalCuenta.append(e.key)
-                }
-                operador = e.key
-                hacerCuenta(operador)
+            cambiador = 1;
+            formula.innerHTML += e.target.innerHTML;
+            if(cantOperador < 1){
+                numero1 = parseFloat(formula.innerHTML);
+            }else{
+                numero2 = parseFloat(formula.innerHTML);
             }
-
         }
-
-        if(e.key === 'Enter'){
-            terminarCuenta(operador);
-        }
-
     }
-
-    
+    if(e.target.classList.contains('operador')){
+        if(e.target.id === 'negativo'){
+            let resultado;
+            if(cantOperador === 0 || numero2 === 0){
+                resultado = cambiarSigno(numero1);
+                numero1 = resultado;
+            }else{
+                resultado = cambiarSigno(numero2);
+                numero2 = resultado;
+            }
+            formula.innerHTML = resultado;
+        }else if(e.target.id === 'porcentaje'){
+            let resultado;
+            if(cantOperador === 0 || numero2 === 0){
+                resultado = porcentaje(numero1);
+                numero1 = resultado;
+            }else{
+                resultado = porcentaje(numero2);
+                numero2 = resultado;
+            }
+            formula.innerHTML = resultado;
+        }else{
+            if(cantOperador > 0){
+                calcularTotal();
+                formula.innerHTML = total;
+            }
+            cambiador = 0;
+            operador = e.target.id;
+            cantOperador = 1;
+        }
+    }
+    if(e.target.classList.contains('total')){
+        calcularTotal();
+        numero1 = 0;
+        numero2 = 0;
+        total = 0;
+        cambiador = 0;
+    }
+    if(e.target.classList.contains('limpiar')){
+        reset();
+    }
 })
 
-function ultimoOperador(){
-    return operadores.includes(totalCuenta.textContent.charAt(totalCuenta.textContent.length - 1))
-}
-
-function hacerCuenta(operador){
-    if(totalCuenta.textContent.split(operador)[0].length === 0){
-        aux = 0 
-    }else{
-
-        if(operadorAux === ''){
-            total += parseFloat(totalCuenta.textContent.split(operador)[0])
-        }else{
-            if (operadorAux === '+'){
-                total += aux;
-            }
-            if (operadorAux === '-'){
-                total -= aux;
-            }
-            if (operadorAux === '*'){
-                total *= aux;
-            }
-            if (operadorAux === '/'){
-                total = total / aux;
-            }
-        }
-    }
-
-    totalCuenta.innerHTML = '';
-
-
-    formula.innerHTML = total;
-
-    cambiador = 1;
-
-    operadorAux = operador;
+const calcularTotal = () => {
+    switch (operador) {
+        case 'sumar':
+            total = sumar(numero1, numero2);
+            break;
+        case 'restar':
+            total = restar(numero1, numero2);
+            break;
+        case 'multiplicar':
+            total = multiplicar(numero1, numero2);
+            break;
+        case 'dividir':
+            total = dividir(numero1, numero2);
+            break;
     
+        default:
+            break;
+    }
+    numero1 = total;
+    numero2 = 0;
+    formula.innerHTML = total;
 }
 
-function terminarCuenta(operador){
-    if(totalCuenta.textContent !== ''){
-        hacerCuenta(operador);
-    }
+const sumar = (num1, num2) => {
+    return num1 + num2;
+}
 
+const restar = (num1, num2) => {
+    return num1 - num2;
+}
+
+const multiplicar = (num1, num2) => {
+    return num1 * num2;
+}
+
+const dividir = (num1, num2) => {
+    return num1 / num2;
+}
+
+const cambiarSigno = num => {
+    return num * (-1);
+}
+
+const porcentaje = num =>{
+    return num / 100;
+}
+
+const reset = () => {
+    numero1 = 0;
+    numero2 = 0;
     total = 0;
-    aux = 0
-    operador = '';
-    operadorAux = '';
-
+    cambiador = 0;
+    formula.innerHTML = 0;
 }
